@@ -8,9 +8,20 @@ dotenv.config()
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:5173']; // Your frontend origin
+
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST']
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST'],
+  credentials: true // If you need to handle cookies or authorization headers
 }));
 
 // Add a test route
@@ -25,8 +36,9 @@ const players = new Map<string, string>();
 
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: allowedOrigins, // Use the array here
+    methods: ['GET', 'POST'],
+    credentials: true // Match credentials setting if needed
   }
 });
 
