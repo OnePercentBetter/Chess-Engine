@@ -31,7 +31,7 @@ type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
   
 //   return window.location.hostname === 'localhost' ? devUrl : prodUrl;
 // })();
-const BACKEND_URL = import.meta.env.VITE_SERVER_URL || "https://salahalhudais-chess-production.up.railway.app"
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
 //const BACKEND_URL = "https://salahalhudais-chess-production.up.railway.app"
 
 console.log('Backend URL:', BACKEND_URL);
