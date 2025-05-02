@@ -1,6 +1,6 @@
 # Chess Game - Frontend
 
-![Chess Game Screenshot](docs/screenshot.png)
+![Chess Game Screenshot](chessFrontend/docs/screenshot.png)
 
 This project is the frontend for a real-time web-based chess application, built with React, TypeScript, and Vite. It communicates with a backend server via Socket.IO to handle game logic and state updates.
 
