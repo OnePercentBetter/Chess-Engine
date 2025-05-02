@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 const server = http.createServer(app);
 const PORT = process.env.PORT || 10000
 
+const players = new Map<string, string>();  
+
 const io = new Server(server, {
   cors: {
     origin: '*',
@@ -38,9 +40,15 @@ io.on('connection', (socket) => {
   
   // Send serialized game state
   socket.emit('game_start', {
-    board: globalGame.board.getBoard(),
+    board: globalGame.board.getBoard().map(piece => {
+      if (!piece) return null;
+      return {
+        color: piece.color,
+        type: piece.type
+      };
+    }),
     turn: globalGame.board.turn,
-    pawnStates: Object.fromEntries(globalGame.board.pawnStates)
+    pawnStates: Array.from(globalGame.board.pawnStates.entries())
   });
 
   socket.on('make_move', ({ from, to }) => {
@@ -51,9 +59,15 @@ io.on('connection', (socket) => {
         globalGame.board = newState;
         
         io.emit('move_made', {
-          board: newState.getBoard(),
+          board: newState.getBoard().map(piece => {
+            if (!piece) return null;
+            return {
+              color: piece.color,
+              type: piece.type
+            };
+          }),
           turn: newState.turn,
-          pawnStates: Object.fromEntries(newState.pawnStates)
+          pawnStates: Array.from(newState.pawnStates.entries())
         });
       }
     } catch (error) {

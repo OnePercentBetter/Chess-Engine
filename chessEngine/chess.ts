@@ -9,7 +9,6 @@ export abstract class ChessPiece {
 
   abstract generate(board: BoardState, index: number): number[];
 
-  // Generate moves without check validation
   generateRawMoves(board: BoardState, index: number): number[] {
     return this.generate(board, index);
   }
@@ -31,7 +30,6 @@ export class Pawn extends ChessPiece implements generateMoves {
     
     if (board.getBoard()[forwardOne] === null) {
       moves.push(forwardOne);
-      // Two-step move from starting position
       const forwardTwo = forwardOne + direction;
       if (!pawnState.hasMoved && board.getBoard()[forwardTwo] === null) {
         moves.push(forwardTwo);
@@ -46,7 +44,6 @@ export class Pawn extends ChessPiece implements generateMoves {
     const direction = this.color === 'white' ? -8 : 8;
     const enemyColor = this.color === 'white' ? 'black' : 'white';
 
-    // Left capture
     if (currentCol > 0) {
       const leftTarget = index + direction - 1;
       const piece = board.getBoard()[leftTarget];
@@ -55,7 +52,6 @@ export class Pawn extends ChessPiece implements generateMoves {
       }
     }
 
-    // Right capture
     if (currentCol < 7) {
       const rightTarget = index + direction + 1;
       const piece = board.getBoard()[rightTarget];
@@ -76,7 +72,6 @@ export class Pawn extends ChessPiece implements generateMoves {
     const direction = this.color === 'white' ? -8 : 8;
 
     if (currentRow === validRow) {
-      // Check left
       if (currentCol > 0) {
         const leftPawn = board.getBoard()[index - 1];
         if (leftPawn instanceof Pawn && 
@@ -85,7 +80,6 @@ export class Pawn extends ChessPiece implements generateMoves {
           moves.push(index + direction - 1);
         }
       }
-      // Check right
       if (currentCol < 7) {
         const rightPawn = board.getBoard()[index + 1];
         if (rightPawn instanceof Pawn && 
@@ -154,10 +148,10 @@ export class Bishop extends ChessPiece implements generateMoves {
     const currentRow = Math.floor(index / 8);
 
     const directions = [
-      [1, 1],    // down-right
-      [1, -1],   // down-left
-      [-1, 1],   // up-right
-      [-1, -1]   // up-left
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1]
     ];
 
     for (const [dx, dy] of directions) {
@@ -168,21 +162,19 @@ export class Bishop extends ChessPiece implements generateMoves {
         newRow += dx;
         newCol += dy;
 
-        // Check boundaries
         if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
 
         const newIndex = newRow * 8 + newCol;
         const targetPiece = board.getBoard()[newIndex];
 
         if (targetPiece) {
-          // Can capture opponent's piece but can't go further
           if (targetPiece.color !== this.color) {
             moves.push(newIndex);
           }
-          break;  // Stop in this direction after hitting any piece
+          break;
         }
 
-        moves.push(newIndex);  // Empty square, can move here
+        moves.push(newIndex);
       }
     }
 
@@ -201,10 +193,10 @@ export class Rook extends ChessPiece implements generateMoves {
     const currentRow = Math.floor(index / 8);
 
     const directions = [
-      [0, 1],   // right
-      [0, -1],  // left
-      [1, 0],   // down
-      [-1, 0]   // up
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0]
     ];
 
     for (const [dx, dy] of directions) {
@@ -215,21 +207,19 @@ export class Rook extends ChessPiece implements generateMoves {
         newRow += dx;
         newCol += dy;
 
-        // Check boundaries
         if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
 
         const newIndex = newRow * 8 + newCol;
         const targetPiece = board.getBoard()[newIndex];
 
         if (targetPiece) {
-          // Can capture opponent's piece but can't go further
           if (targetPiece.color !== this.color) {
             moves.push(newIndex);
           }
-          break;  // Stop in this direction after hitting any piece
+          break;
         }
 
-        moves.push(newIndex);  // Empty square, can move here
+        moves.push(newIndex);
       }
     }
 
@@ -247,20 +237,18 @@ export class Queen extends ChessPiece implements generateMoves {
     const currentCol = index % 8;
     const currentRow = Math.floor(index / 8);
 
-    // Horizontal and vertical moves (rook-like)
     const straightDirections = [
-      [0, 1],   // right
-      [0, -1],  // left
-      [1, 0],   // down
-      [-1, 0]   // up
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0]
     ];
 
-    // Diagonal moves (bishop-like)
     const diagonalDirections = [
-      [1, 1],    // down-right
-      [1, -1],   // down-left
-      [-1, 1],   // up-right
-      [-1, -1]   // up-left
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1]
     ];
 
     const directions = [...straightDirections, ...diagonalDirections];
@@ -273,21 +261,19 @@ export class Queen extends ChessPiece implements generateMoves {
         newRow += dx;
         newCol += dy;
 
-        // Check boundaries
         if (newRow < 0 || newRow > 7 || newCol < 0 || newCol > 7) break;
 
         const newIndex = newRow * 8 + newCol;
         const targetPiece = board.getBoard()[newIndex];
 
         if (targetPiece) {
-          // Can capture opponent's piece but can't go further
           if (targetPiece.color !== this.color) {
             moves.push(newIndex);
           }
-          break;  // Stop in this direction after hitting any piece
+          break;
         }
 
-        moves.push(newIndex);  // Empty square, can move here
+        moves.push(newIndex);
       }
     }
 
@@ -323,7 +309,6 @@ export class King extends ChessPiece implements generateMoves {
       }
     }
 
-    // Add castling logic here
     return moves;
   }
 }
@@ -360,13 +345,11 @@ const algebraicToIndex = (index: String): number => {
   return idx;
 }
 
-// Add type for move input
 interface MoveInput {
   from: number;
   to: number;
 }
 
-// Temporary implementation for testing
 async function getMoveInput(): Promise<MoveInput> {
   return {
     from: algebraicToIndex('e2'),
@@ -386,7 +369,6 @@ class BoardState {
   public static createNew(): BoardState {
     const board = new Array<ChessPiece | null>(64).fill(null);
     
-    // Black pieces
     board[0] = new Rook('black');
     board[1] = new Knight('black');
     board[2] = new Bishop('black');
@@ -396,12 +378,10 @@ class BoardState {
     board[6] = new Knight('black');
     board[7] = new Rook('black');
     
-    // Black pawns
     for (let i = 8; i < 16; i++) {
       board[i] = new Pawn('black');
     }
 
-    // White pieces
     board[56] = new Rook('white');
     board[57] = new Knight('white');
     board[58] = new Bishop('white');
@@ -411,7 +391,6 @@ class BoardState {
     board[62] = new Knight('white');
     board[63] = new Rook('white');
     
-    // White pawns
     for (let i = 48; i < 56; i++) {
       board[i] = new Pawn('white');
     }
@@ -425,29 +404,20 @@ class BoardState {
     );
   }
 
-  // MakeMove function to change board State
-  // isValidMove to check if valid move
-  // switchTurn
-
    isValidMove(from: number, to: number): boolean {
-    // 1. Basic position validation
     if (from < 0 || from > 63 || to < 0 || to > 63) return false;
-    if (from === to) return false;  // Cannot move to same square
+    if (from === to) return false;
 
-    // 2. Piece validation
     const piece = this.board[from];
-    if (!piece) return false;  // No piece at from position
-    if (piece.color !== this.turn) return false;  // Wrong color's turn
+    if (!piece) return false;
+    if (piece.color !== this.turn) return false;
     
-    // 3. Target square validation
     const targetPiece = this.board[to];
-    if (targetPiece?.color === piece.color) return false;  // Cannot capture own piece
+    if (targetPiece?.color === piece.color) return false;
 
-    // 4. Get valid moves and verify
     const validMoves = piece.generate(this, from);
     if (!validMoves.includes(to)) return false;
 
-    // 5. Check validation
     const tempBoard = [...this.board];
     tempBoard[to] = piece;
     tempBoard[from] = null;
@@ -455,7 +425,6 @@ class BoardState {
     const kingPos = piece.type === 'king' ? 
       to : this.findKing(piece.color, tempBoard);
       
-    // Create temporary board state for check validation
     const tempState = new BoardState(
       tempBoard,
       this.turn,
@@ -468,11 +437,9 @@ class BoardState {
   }
 
   private wouldBeInCheck(kingPos: number, color: string, state: BoardState): boolean {
-    // Check all opponent pieces
     for (let i = 0; i < 64; i++) {
       const piece = state.board[i];
       if (piece && piece.color !== color) {
-        // Generate raw moves without check validation to avoid recursion
         const moves = piece.generateRawMoves(state, i);
         if (moves.includes(kingPos)) return true;
       }
@@ -494,7 +461,6 @@ class BoardState {
     for (let i = 0; i < this.board.length; i++) {
       const piece = this.board[i];
       if (piece && piece.color !== defendingColor) {
-        // Don't create new board state to avoid infinite recursion
         const moves = piece.generate(this, i);
         if (moves.includes(square)) {
           return true;
@@ -505,28 +471,23 @@ class BoardState {
   }
 
   public isCheckmate(color: string): boolean {
-    // First verify the king is in check
     if (!this.isInCheck(color)) {
       return false;
     }
 
-    // Check if any piece can make a legal move
     for (let i = 0; i < 64; i++) {
       const piece = this.board[i];
       if (piece && piece.color === color) {
-        // Get all possible moves for this piece
         const moves = piece.generate(this, i);
         
-        // Try each move to see if it gets out of check
         for (const move of moves) {
           if (this.isValidMove(i, move)) {
-            return false; // Found a legal move, not checkmate
+            return false;
           }
         }
       }
     }
     
-    // No legal moves found while in check = checkmate
     return true;
   }
 
@@ -542,14 +503,12 @@ class BoardState {
     return fromCol !== toCol && this.board[to] === null;
   }
 
-  private updatePawnState(newPawnStates: Map<number, any>, to: number, distance: number): void {
-    // Set state for moved pawn
+  private updatePawnState(newPawnStates: Map<number, any>, from: number, to: number, distance: number): void {
     newPawnStates.set(to, {
       hasMoved: true,
       twoStep: distance === 16
     });
 
-    // Reset twoStep for all other pawns
     newPawnStates.forEach((state, index) => {
       if (index !== to) {
         newPawnStates.set(index, { ...state, twoStep: false });
@@ -574,21 +533,19 @@ class BoardState {
     const newPawnStates = new Map(this.pawnStates);
     const distance = Math.abs(to - from);
 
-    // Handle pawn special cases
     if (piece instanceof Pawn) {
       if (this.isEnPassantCapture(piece, from, to)) {
         const capturedPawnIndex = piece.color === 'white' ? to + 8 : to - 8;
         newBoard[capturedPawnIndex] = null;
       }
       
-      // Handle pawn promotion
       if (this.isPawnPromotion(piece, to)) {
         newBoard[to] = new Queen(piece.color);
       } else {
         newBoard[to] = piece;
       }
       
-      this.updatePawnState(newPawnStates, to, distance);
+      this.updatePawnState(newPawnStates, from, to, distance);
     } else {
       newBoard[to] = piece;
     }
@@ -603,7 +560,6 @@ class BoardState {
       newPawnStates
     );
 
-    // Check for checkmate after move
     const oppositeColor = this.turn === 'white' ? 'black' : 'white';
     if (newState.isCheckmate(oppositeColor)) {
       console.log(`Checkmate! ${this.turn} wins!`);
@@ -649,12 +605,10 @@ class BoardState {
     return this.board;
   }
 
-  // Pure function for move processing
   static processMove(currentState: BoardState, from: number, to: number): BoardState | null {
     return currentState.makeMove(from, to);
   }
 
-  // Separate I/O handling
   static async gameLoop(initialState: BoardState) {
     let state = initialState;
     while (true) {
@@ -718,12 +672,10 @@ class BoardState {
   }
 
   public isStalemate(color: string): boolean {
-    // First verify the king is NOT in check
     if (this.isInCheck(color)) {
       return false;
     }
 
-    // Check if any piece can make a legal move
     for (let i = 0; i < 64; i++) {
       const piece = this.board[i];
       if (piece && piece.color === color) {
@@ -762,3 +714,4 @@ export const updatePawnState = (
     newStates
   );
 };
+
